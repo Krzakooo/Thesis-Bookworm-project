@@ -1,0 +1,257 @@
+{% extends "base.twig" %}
+
+{% block title %}Book Details{% endblock %}
+
+{% block content %}
+    {% include 'menu.twig' %}
+    <main class="container">
+        <section class="book-details">
+            {% if book %}
+                <div>
+                    <h1>{{ book.title }}</h1>
+                    <div class="book-info">
+                        <div class="book-section">
+                            <h2>Author(s)</h2>
+                            <p>{{ book.author|join(', ') }}</p>
+                        </div>
+                        <div class="book-section">
+                            <h2>Description</h2>
+                            <p>{{ book.description }}</p>
+                        </div>
+                        <div class="book-section">
+                            <h2>Number of Pages</h2>
+                            <p>
+                                {% if book.pages > 0 %}
+                                    {{ book.pages }}
+                                {% else %}
+                                    Not Specified
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="cover-container">
+                        <img class="book-cover" src="{{ book.cover }}" alt="{{ book.title }} cover">
+                    </div>
+                </div>
+
+                <!-- Rating & Review Section -->
+                <div class="rating-review-section">
+                    <div class="rating-section">
+                        <h2>Rate This Book</h2>
+                        <label for="rating"></label>
+                        <select name="rating" id="rating">
+                            <option value="1">1 Star</option>
+                            <option value="2">2 Stars</option>
+                            <option value="3">3 Stars</option>
+                            <option value="4">4 Stars</option>
+                            <option value="5">5 Stars</option>
+                        </select>
+                        <input type="hidden" id="bookId" value="{{ book.id }}">
+                        <input type="hidden" id="userId" value="{{ userId }}">
+                        <div class="button-container">
+                            <button onclick="submitRating()">Submit Rating</button>
+                        </div>
+                    </div>
+                    <div class="review-section">
+                        <h2>Write a Review</h2>
+                        <label for="review"></label>
+                        <textarea name="review" id="review" cols="30" rows="5" placeholder="Write your review here"></textarea>
+                        <input type="hidden" id="bookId" value="{{ book.id }}">
+                        <input type="hidden" id="userId" value="{{ userId }}">
+                        <div class="button-container">
+                            <button onclick="submitReview()">Submit Review</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ratings -->
+                <div class="ratings" id="ratings">
+                    <h2>Ratings</h2>
+                    <ul>
+                        {% for rating in ratings %}
+                            <li>
+                                {{ rating.rating }} Stars
+                                {% if rating.user_id == userId %}
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <button onclick="deleteRating({{ rating.id }})">Delete</button>
+
+                <!-- Reviews -->
+                <div class="reviews" id="reviews">
+                    <h2>Reviews</h2>
+                    <ul>
+                        {% for review in reviews %}
+                            <li>
+                                {{ review.review_text }}
+                                {% if review.user_id == userId %}
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <button onclick="deleteReview({{ review.id }})">Delete</button>
+
+            {% else %}
+                <h1>Book Not Found</h1>
+            {% endif %}
+        </section>
+    </main>
+    <script>
+        function fetchRatingsAndReviews() {
+            fetch(`/catalogue/{{ book.id }}/ratings`)
+                .then(response => response.json())
+                .then(data => {
+                    const ratingsList = document.querySelector('#ratings');
+                    ratingsList.innerHTML = '';
+                    const ratingsHeader = document.createElement('h2');
+                    ratingsHeader.textContent = 'Ratings';
+                    ratingsList.appendChild(ratingsHeader);
+                    const ul = document.createElement('ul');
+                    data.forEach(rating => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = `${rating.rating} Stars`;
+                        ul.appendChild(listItem);
+                    });
+                    ratingsList.appendChild(ul);
+                })
+                .catch(error => console.error('Error fetching ratings:', error));
+
+            fetch(`/catalogue/{{ book.id }}/reviews`)
+                .then(response => response.json())
+                .then(data => {
+                    const reviewsList = document.querySelector('#reviews');
+                    reviewsList.innerHTML = '';
+                    const reviewsHeader = document.createElement('h2');
+                    reviewsHeader.textContent = 'Reviews';
+                    reviewsList.appendChild(reviewsHeader);
+                    const ul = document.createElement('ul');
+                    data.forEach(review => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = review.review_text;
+                        ul.appendChild(listItem);
+                    });
+                    reviewsList.appendChild(ul);
+                })
+                .catch(error => console.error('Error fetching reviews:', error));
+        }
+
+        function submitRating() {
+            const rating = document.getElementById('rating').value;
+            const bookId = document.getElementById('bookId').value;
+            const userId = document.getElementById('userId').value;
+
+            fetch(`/catalogue/${bookId}/rate`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    rating: rating,
+                    bookId: bookId,
+                    userId: userId
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Rating submitted successfully');
+                        fetchRatingsAndReviews();
+                    } else {
+                        alert('Failed to submit rating');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function deleteRating(ratingId) {
+            const bookId = document.getElementById('bookId').value;
+            const userId = document.getElementById('userId').value;
+
+            fetch(`/catalogue/${bookId}/rate`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ratingId: ratingId,
+                    userId: userId
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Rating deleted successfully');
+                        fetchRatingsAndReviews();
+                    } else {
+                        alert('Failed to delete rating');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function submitReview() {
+            const review = document.getElementById('review').value;
+            const bookId = document.getElementById('bookId').value;
+            const userId = document.getElementById('userId').value;
+
+            fetch(`/catalogue/${bookId}/review`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    bookId: bookId,
+                    review: review
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Review submitted successfully');
+                        fetchRatingsAndReviews();
+                    } else {
+                        alert('Failed to submit review');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to submit review');
+                });
+        }
+
+
+        function deleteReview(reviewId) {
+            const bookId = document.getElementById('bookId').value;
+            const userId = document.getElementById('userId').value;
+
+            fetch(`/catalogue/${bookId}/review`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    reviewId: reviewId,
+                    userId: userId
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Review deleted successfully');
+                        fetchRatingsAndReviews();
+                    } else {
+                        alert('Failed to delete review');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        fetchRatingsAndReviews();
+    </script>
+{% endblock %}

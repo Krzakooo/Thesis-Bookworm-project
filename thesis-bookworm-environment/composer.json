@@ -1,0 +1,6 @@
+{
+    "require": {
+        "symfony/cache": "^7.1",
+        "psr/simple-cache": "^3.0"
+    }
+}

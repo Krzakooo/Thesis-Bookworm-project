@@ -1,0 +1,28 @@
+{
+  "name": "project/bookworm",
+  "description": "Bookworm",
+  "type": "project",
+  "autoload": {
+    "psr-4": {
+      "Project\\Bookworm\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Patryk Zak",
+      "email": "patrykjz@hotmail.com"
+    }
+  ],
+  "require": {
+    "ext-pdo": "*",
+    "slim/slim": "^4.0",
+    "slim/psr7": "1.5",
+    "php-di/slim-bridge": "^3.1",
+    "slim/twig-view": "3.3",
+    "ext-json": "*",
+    "psr/http-message": "^1.1",
+    "symfony/cache": "^7.1",
+    "psr/simple-cache": "^3.0"
+  }
+
+}

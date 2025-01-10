@@ -1,0 +1,57 @@
+{% extends "base.twig" %}
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+    {% include 'menu.twig' %}
+    <main class="container centered-container" id="user-id" data-user-id="{{ userId }}">
+        <h1>User Profile</h1>
+        {% if flashyMessages %}
+            <h2 class="flash-message">{{ flashyMessages }}</h2>
+        {% endif %}
+
+        {% if errors %}
+            <div class="error-messages">
+                {% for error in errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% else %}
+            {% if post %}
+                <div class="success-message">Profile updated successfully!</div>
+            {% endif %}
+        {% endif %}
+
+        <div class="profile-picture-container">
+            {% if profilePictureUrl %}
+                <img id="profile-picture-display" src="{{ profilePictureUrl }}" alt="Profile Picture">
+            {% else %}
+                <img id="no-profile-picture" src="../img/noimg.jpg" alt="Profile Picture">
+            {% endif %}
+        </div>
+
+        {% if currentUser %}
+            <form id="profile_form" class="form" action="/profile" method="POST" enctype="multipart/form-data" data-cy="profile">
+                <div class="form-group">
+                    <label for="email">Email (unchangable):</label>
+                    <input type="email" id="email" name="email" value="{{ currentUser.getEmail() }}" data-cy="profile__email">
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" value="{{ currentUser.getUsername() }}" data-cy="profile__username">
+                </div>
+
+                <div class="form-group">
+                    <label id="picture_label" class="custom-file-upload" for="profile_picture">Upload a Profile Picture</label>
+                    <input type="file" id="profile_picture" name="profile_picture" accept="image/png, image/jpeg, image/gif, image/svg+xml" data-cy="profile__picture">
+                </div>
+
+                <div class="button-container">
+                    <input type="submit" value="Update Profile" data-cy="profile__btn">
+                </div>
+            </form>
+        {% else %}
+            <p>User not found.</p>
+        {% endif %}
+    </main>
+{% endblock %}
