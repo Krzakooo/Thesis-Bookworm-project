@@ -31,6 +31,7 @@ require_once '../config/dependencies.php';
 require_once '../service/ForumService.php';
 require_once '../service/ForumPostService.php';
 
+
 $app = AppFactory::create();
 
 // Middleware
@@ -126,8 +127,8 @@ $app->get('/api/forums/{id}/posts', function (Request $request, Response $respon
     return $forumPostController->renderForumPostsPage($request, $response, $args);
 });
 
-$app->post('/api/forums/{id}/posts', function (Request $request, Response $response, $args) use ($forumPostController) {
-    return $forumPostController->createForumPost($request, $response, $args);
+$app->post('/api/forums/{id}/posts', function (Request $request, Response $response) use ($forumPostController) {
+    return $forumPostController->createForumPost($request, $response);
 });
 
 //Book Catalogue
