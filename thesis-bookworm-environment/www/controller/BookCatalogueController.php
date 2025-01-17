@@ -72,10 +72,9 @@ class BookCatalogueController
         $allSearchResults = [];
         $maxBooksPerCategory = 5;  // Adjust based on API and hardware limits
     
-        $apiKey = 'AIzaSyBPGOtKJrNyfaRKbpnPhNuPfTUmxfkro9Y'; // Replace with your Google Books API key
+        $apiKey = 'AIzaSyBPGOtKJrNyfaRKbpnPhNuPfTUmxfkro9Y';
     
         foreach ($categories as $category) {
-            // Build the Google Books API request URL
             $category_url = "https://www.googleapis.com/books/v1/volumes?q={$category}&maxResults={$maxBooksPerCategory}&key={$apiKey}";
     
             $json = file_get_contents($category_url);
@@ -131,7 +130,6 @@ class BookCatalogueController
             }
         }
     
-        // Temporary solution to distinguish user-created books
         $userCreatedBooks = $this->service->getUserBooks();
     
         foreach ($userCreatedBooks as $userBook) {
