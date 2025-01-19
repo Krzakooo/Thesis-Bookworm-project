@@ -73,7 +73,7 @@
                 <!-- Ratings -->
                 <div class="ratings" id="ratings">
                     <h2>Ratings</h2>
-                    <ul>
+                    <ul class="ul-rating-review">
                         <li>Loading...</li>
                     </ul>
                 </div>
@@ -81,7 +81,7 @@
                 <!-- Reviews -->
                 <div class="reviews" id="reviews">
                     <h2>Reviews</h2>
-                    <ul>
+                    <ul class="ul-rating-review">
                         <li>Loading...</li>
                     </ul>
                 </div>
@@ -105,7 +105,7 @@
                     data.forEach(rating => {
                         totalRating += rating.rating;
                         const listItem = document.createElement('li');
-                        listItem.innerHTML = `<strong>${rating.username}</strong>: ${rating.rating} Stars`;
+                        listItem.innerHTML = `<div><strong>${rating.username}</strong>: ${rating.rating} Stars</div>`;
                         if (rating.user_id == {{ userId }}) {
                             const deleteButton = document.createElement('button');
                             deleteButton.classList.add("delete-rating-review")
@@ -128,7 +128,7 @@
                     reviewsList.innerHTML = '';
                     data.forEach(review => {
                         const listItem = document.createElement('li');
-                        listItem.innerHTML = `<strong>${review.username}</strong>: ${review.review_text}`;
+                        listItem.innerHTML = `<div><strong>${review.username}</strong>: ${review.review_text}</div>`;
                         if (review.user_id == {{ userId }}) {
                             const deleteButton = document.createElement('button');
                             deleteButton.classList.add("delete-rating-review")

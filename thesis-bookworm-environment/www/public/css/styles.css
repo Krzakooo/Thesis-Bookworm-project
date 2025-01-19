@@ -505,8 +505,32 @@ form .form-group input[type="text"], form .form-group input[type="email"], form 
     margin-top: 10px;
 }
 
+.ul-rating-review {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+.ul-rating-review > li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-direction: column;
+    background-color: #eee;
+    padding: 10px;
+    width: 200px;
+    border-radius: 5px;
+}
+
 .delete-rating-review {
-    
+    font-size: 12px; 
+    padding: 5px 10px; 
+    background-color: #ff6b6b; 
+    color: white; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    margin-top: 5px; 
+    width: 100px;
 }
 
 
