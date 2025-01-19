@@ -62,14 +62,21 @@ class BookRatingReviewService
 
     public function getRatingByBookId($bookId)
     {
-        $stmt = $this->db->prepare("SELECT * FROM ratings WHERE book_id = :book_id");
+        $stmt = $this->db->prepare("SELECT r.rating, r.user_id, u.username 
+        FROM ratings r 
+        JOIN users u ON r.user_id = u.id 
+        WHERE r.book_id = :book_id");
+        
         $stmt->execute(['book_id' => $bookId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getReviewByBookId($bookId)
     {
-        $stmt = $this->db->prepare("SELECT * FROM reviews WHERE book_id = :book_id");
+        $stmt = $this->db->prepare("SELECT r.review_text, r.user_id, u.username 
+        FROM reviews r 
+        JOIN users u ON r.user_id = u.id 
+        WHERE r.book_id = :book_id");
         $stmt->execute(['book_id' => $bookId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

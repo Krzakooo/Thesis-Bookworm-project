@@ -105,7 +105,7 @@
                     data.forEach(rating => {
                         totalRating += rating.rating;
                         const listItem = document.createElement('li');
-                        listItem.innerHTML = `<strong>User ID: ${rating.user_id}</strong>: ${rating.rating} Stars`;
+                        listItem.innerHTML = `<strong>${rating.username}</strong>: ${rating.rating} Stars`;
                         if (rating.user_id == {{ userId }}) {
                             const deleteButton = document.createElement('button');
                             deleteButton.classList.add("delete-rating-review")
@@ -128,7 +128,7 @@
                     reviewsList.innerHTML = '';
                     data.forEach(review => {
                         const listItem = document.createElement('li');
-                        listItem.innerHTML = `<strong>User ID: ${review.user_id}</strong>: ${review.review_text}`;
+                        listItem.innerHTML = `<strong>${review.username}</strong>: ${review.review_text}`;
                         if (review.user_id == {{ userId }}) {
                             const deleteButton = document.createElement('button');
                             deleteButton.classList.add("delete-rating-review")
