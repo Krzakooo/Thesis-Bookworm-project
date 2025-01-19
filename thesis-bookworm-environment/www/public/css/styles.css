@@ -505,6 +505,10 @@ form .form-group input[type="text"], form .form-group input[type="email"], form 
     margin-top: 10px;
 }
 
+.delete-rating-review {
+    
+}
+
 
 /* Menu styles */
 .menu-list button,

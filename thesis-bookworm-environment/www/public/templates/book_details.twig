@@ -64,36 +64,27 @@
                     </div>
                 </div>
 
+                <!-- Total Rating -->
+                <div class="total-rating" id="total-rating">
+                    <h2>Overall Rating</h2>
+                    <p>Loading...</p>
+                </div>
+
                 <!-- Ratings -->
                 <div class="ratings" id="ratings">
                     <h2>Ratings</h2>
                     <ul>
-                        {% for rating in ratings %}
-                            <li>
-                                {{ rating.rating }} Stars
-                                {% if rating.user_id == userId %}
-                                {% endif %}
-                            </li>
-                        {% endfor %}
+                        <li>Loading...</li>
                     </ul>
                 </div>
-                <button onclick="deleteRating({{ rating.id }})">Delete</button>
 
                 <!-- Reviews -->
                 <div class="reviews" id="reviews">
                     <h2>Reviews</h2>
                     <ul>
-                        {% for review in reviews %}
-                            <li>
-                                {{ review.review_text }}
-                                {% if review.user_id == userId %}
-                                {% endif %}
-                            </li>
-                        {% endfor %}
+                        <li>Loading...</li>
                     </ul>
                 </div>
-                <button onclick="deleteReview({{ review.id }})">Delete</button>
-
             {% else %}
                 <h1>Book Not Found</h1>
             {% endif %}
@@ -101,39 +92,52 @@
     </main>
     <script>
         function fetchRatingsAndReviews() {
-            fetch(`/catalogue/{{ book.id }}/ratings`)
+            const bookId = {{ book.id }};
+
+            fetch(`/catalogue/${bookId}/ratings`)
                 .then(response => response.json())
                 .then(data => {
-                    const ratingsList = document.querySelector('#ratings');
+                    const ratingsList = document.querySelector('#ratings ul');
+                    const totalRatingElement = document.querySelector('#total-rating p');
                     ratingsList.innerHTML = '';
-                    const ratingsHeader = document.createElement('h2');
-                    ratingsHeader.textContent = 'Ratings';
-                    ratingsList.appendChild(ratingsHeader);
-                    const ul = document.createElement('ul');
+                    
+                    let totalRating = 0;
                     data.forEach(rating => {
+                        totalRating += rating.rating;
                         const listItem = document.createElement('li');
-                        listItem.textContent = `${rating.rating} Stars`;
-                        ul.appendChild(listItem);
+                        listItem.innerHTML = `<strong>User ID: ${rating.user_id}</strong>: ${rating.rating} Stars`;
+                        if (rating.user_id == {{ userId }}) {
+                            const deleteButton = document.createElement('button');
+                            deleteButton.classList.add("delete-rating-review")
+                            deleteButton.textContent = 'Delete';
+                            deleteButton.onclick = () => deleteRating(rating.id);
+                            listItem.appendChild(deleteButton);
+                        }
+                        ratingsList.appendChild(listItem);
                     });
-                    ratingsList.appendChild(ul);
+
+                    const averageRating = data.length > 0 ? (totalRating / data.length).toFixed(2) : 0;
+                    totalRatingElement.textContent = `${averageRating} / 5 Stars (${data.length} Ratings)`;
                 })
                 .catch(error => console.error('Error fetching ratings:', error));
 
-            fetch(`/catalogue/{{ book.id }}/reviews`)
+            fetch(`/catalogue/${bookId}/reviews`)
                 .then(response => response.json())
                 .then(data => {
-                    const reviewsList = document.querySelector('#reviews');
+                    const reviewsList = document.querySelector('#reviews ul');
                     reviewsList.innerHTML = '';
-                    const reviewsHeader = document.createElement('h2');
-                    reviewsHeader.textContent = 'Reviews';
-                    reviewsList.appendChild(reviewsHeader);
-                    const ul = document.createElement('ul');
                     data.forEach(review => {
                         const listItem = document.createElement('li');
-                        listItem.textContent = review.review_text;
-                        ul.appendChild(listItem);
+                        listItem.innerHTML = `<strong>User ID: ${review.user_id}</strong>: ${review.review_text}`;
+                        if (review.user_id == {{ userId }}) {
+                            const deleteButton = document.createElement('button');
+                            deleteButton.classList.add("delete-rating-review")
+                            deleteButton.textContent = 'Delete';
+                            deleteButton.onclick = () => deleteReview(review.id);
+                            listItem.appendChild(deleteButton);
+                        }
+                        reviewsList.appendChild(listItem);
                     });
-                    reviewsList.appendChild(ul);
                 })
                 .catch(error => console.error('Error fetching reviews:', error));
         }
@@ -149,9 +153,9 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    rating: rating,
-                    bookId: bookId,
-                    userId: userId
+                    rating,
+                    bookId,
+                    userId
                 })
             })
                 .then(response => {
@@ -162,24 +166,16 @@
                         alert('Failed to submit rating');
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+                .catch(error => console.error('Error submitting rating:', error));
         }
 
         function deleteRating(ratingId) {
-            const bookId = document.getElementById('bookId').value;
-            const userId = document.getElementById('userId').value;
-
-            fetch(`/catalogue/${bookId}/rate`, {
+            fetch(`/catalogue/{{ book.id }}/rate`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    ratingId: ratingId,
-                    userId: userId
-                })
+                body: JSON.stringify({ ratingId })
             })
                 .then(response => {
                     if (response.ok) {
@@ -189,9 +185,7 @@
                         alert('Failed to delete rating');
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+                .catch(error => console.error('Error deleting rating:', error));
         }
 
         function submitReview() {
@@ -205,9 +199,9 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    userId: userId,
-                    bookId: bookId,
-                    review: review
+                    review,
+                    bookId,
+                    userId
                 })
             })
                 .then(response => {
@@ -215,29 +209,19 @@
                         alert('Review submitted successfully');
                         fetchRatingsAndReviews();
                     } else {
-                        alert('Failed to submit review');
+                        alert('Failed to submit review, only one review per user, delete your existing review first');
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Failed to submit review');
-                });
+                .catch(error => console.error('Error submitting review:', error));
         }
 
-
         function deleteReview(reviewId) {
-            const bookId = document.getElementById('bookId').value;
-            const userId = document.getElementById('userId').value;
-
-            fetch(`/catalogue/${bookId}/review`, {
+            fetch(`/catalogue/{{ book.id }}/review`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    reviewId: reviewId,
-                    userId: userId
-                })
+                body: JSON.stringify({ reviewId })
             })
                 .then(response => {
                     if (response.ok) {
@@ -247,9 +231,7 @@
                         alert('Failed to delete review');
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+                .catch(error => console.error('Error deleting review:', error));
         }
 
         fetchRatingsAndReviews();
