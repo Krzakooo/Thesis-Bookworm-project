@@ -39,6 +39,15 @@ class BookCatalogueService
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAllBooks()
+    {
+        
+        $stmt = $this->db->prepare("SELECT * FROM books");
+        
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 
     public function getTotalBookCount()
     {
@@ -49,10 +58,11 @@ class BookCatalogueService
     }
 
 
-    public function saveBook(string $title, string $author, string $description, int $pages, string $cover): ?int
+    public function saveBook(string $title, string $author, string $description, int $pages, string $cover, string $category): ?int
     {
         $sql = "INSERT INTO books (title, author, description, pages, cover) VALUES (:title, :author, :description, :pages, :cover)";
         $stmt = $this->db->prepare($sql);
+        $description = $category  . ' ' . $description;
         $success = $stmt->execute([
             'title' => $title,
             'author' => $author,
@@ -78,6 +88,7 @@ class BookCatalogueService
             $insertStatement->bindParam(':author', $data['author'], PDO::PARAM_STR);
             $insertStatement->bindParam(':description', $data['description'], PDO::PARAM_STR);
             $insertStatement->bindParam(':pages', $data['pages'], PDO::PARAM_INT);
+            $coverUrl = $data['cover'] ?? "https://static.wikia.nocookie.net/gijoe/images/b/bf/Default_book_cover.jpg/revision/latest?cb=20240508080922";
             $insertStatement->bindParam(':cover', $data['cover'], PDO::PARAM_STR);
 
             return $insertStatement->execute();

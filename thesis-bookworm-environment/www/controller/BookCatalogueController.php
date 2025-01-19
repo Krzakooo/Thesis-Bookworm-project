@@ -70,7 +70,7 @@ class BookCatalogueController
     
         $categories = ['action', 'adventure', 'mystery', 'fantasy', 'romance'];
         $allSearchResults = [];
-        $maxBooksPerCategory = 5;  // Adjust based on API and hardware limits
+        $maxBooksPerCategory = 15;  // Adjust based on API and hardware limits
     
         $apiKey = 'AIzaSyBPGOtKJrNyfaRKbpnPhNuPfTUmxfkro9Y';
     
@@ -112,7 +112,8 @@ class BookCatalogueController
                             implode(', ', $book['author_names']),
                             $book['description'],
                             $book['pages'],
-                            $coverUrl
+                            $coverUrl,
+                            $category
                         );
                     }
     
@@ -130,20 +131,20 @@ class BookCatalogueController
             }
         }
     
-        $userCreatedBooks = $this->service->getUserBooks();
+        $alreadyCreatedBooks = $this->service->getAllBooks();
     
-        foreach ($userCreatedBooks as $userBook) {
+        foreach ($alreadyCreatedBooks as $existingBook) {
             $book = [
-                'id' => $userBook['id'],
-                'title' => $userBook['title'],
-                'author_names' => explode(', ', $userBook['author']),
-                'cover_url' => $userBook['cover'],
-                'description' => $userBook['description'],
-                'pages' => $userBook['pages'],
+                'id' => $existingBook['id'],
+                'title' => $existingBook['title'],
+                'author_names' => explode(', ', $existingBook['author']),
+                'cover_url' => $existingBook['cover'],
+                'description' => $existingBook['description'],
+                'pages' => $existingBook['pages'],
             ];
     
             // Since database was already created without accounting for category and API books are fetched per category, for user added books a shortcut was used and category is stored as a first string of the description field in the database
-            $allSearchResults[strtok($userBook['description'], " ")][] = $book;
+            $allSearchResults[strtok($existingBook['description'], " ")][] = $book;
         }
     
         // // Cache the results for 1 hour
